@@ -3,7 +3,7 @@
 ```python
 from estimator import Estimator
 from folds import CustomFolds, FoldScheme
-from hyperopt_model_selection import HyperOptModelSelection, hp
+from hyperopt_model_selection import HyperOptModelSelection, hp, lgbm_space
 from lightgbm import LGBMRegressor, LGBMClassifier
 from xgboost import XGBRFRegressor, XGBClassifier
 
