@@ -40,6 +40,7 @@ hpt = HyperOptModelSelection(model=est, space=lgbm_space, max_evals=50, is_maxim
 hpt.fit(X_train, y_train)
 print(hpt.best_score)
 print(hpt.best_params)
+est = hpt.best_estimator
 
 ```
 
