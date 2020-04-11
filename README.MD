@@ -36,7 +36,7 @@ est = Estimator(
     LGBMClassifier(), early_stopping_rounds=100, random_state=100, 
     variance_penalty=1, verbose=100, eval_metric='roc', validation_scheme=FoldScheme.StratifiedKFold
 )
-hpt = HyperOptModelSelection(model=est, space=lgbm_space, max_evals=50, is_maximize=False)
+hpt = HyperOptModelSelection(model=est, space=lgbm_space, max_evals=50, is_maximize=True)
 hpt.fit(X_train, y_train)
 print(hpt.best_score)
 print(hpt.best_params)
