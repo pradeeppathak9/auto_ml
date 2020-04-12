@@ -4,16 +4,28 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.base import clone
 from sklearn.preprocessing import RobustScaler
 from sklearn.model_selection import StratifiedKFold, KFold, GroupKFold, TimeSeriesSplit, train_test_split
+from sklearn.metrics import accuracy_score, mean_absolute_error, mean_squared_error
 import random
 import io, pickle
 from folds import CustomFolds, FoldScheme
 
 from lightgbm import LGBMRegressor, LGBMClassifier
-from xgboost import XGBRFRegressor, XGBClassifier
+from xgboost import XGBRegressor, XGBClassifier
 
 
 class_instance = lambda a, b: eval("{}(**{})".format(a, b if b is not None else {}))
-        
+
+metric_mapping = {
+    "mae": mean_absolute_error,
+    "mse": mean_squared_error
+}
+
+def get_scoring_metric(scoring_metric, eval_metric):
+    if callable(scoring_metric): return scoring_metric
+    if isinstance(scoring_metric, str):
+        return metric_mapping.get(scoring_metric)
+    return metric_mapping.get(eval_metric)
+
 class Estimator(object):
 
     def __init__(self, model, n_splits=5, random_state=100, shuffle=True, early_stopping_rounds=None, 
@@ -46,7 +58,6 @@ class Estimator(object):
         self.verbose = verbose
         self.eval_metric = eval_metric
         self.scoring_metric = scoring_metric
-
         self.over_sampling = over_sampling
 
 
@@ -165,11 +176,10 @@ class Estimator(object):
                 predictions[test_index] = self.fitted_models[i].predict_proba(x[test_index])[:,1]
             else:
                 predictions[test_index] = self.fitted_models[i].predict(x[test_index])
-
-        self.cv_scores = [
-            self.scoring_metric(y[test_index], predictions[test_index])
-            for i, (train_index, test_index) in enumerate(self.indices)
-        ]
+        self.cv_scores = []
+        scoring_metric = get_scoring_metric(self.scoring_metric, self.eval_metric)
+        if scoring_metric is not None:
+            self.cv_scores = [scoring_metric(y[test_index], predictions[test_index]) for i, (train_index, test_index) in enumerate(self.indices)]
         self.avg_cv_score = np.mean(self.cv_scores)
         return predictions
 

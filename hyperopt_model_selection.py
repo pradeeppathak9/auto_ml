@@ -75,7 +75,7 @@ catb_exhaustive_space ={
 lr_space={
     'penalty':hp.choice('penalty',['l1','l2']),
     'C':hp.loguniform('C',-3*np.log(10),4*np.log(10))
-         }
+}
 
 rf_space = {
     'max_depth':  hp.quniform('max_depth', 2, 10, 1),
@@ -83,23 +83,22 @@ rf_space = {
     'n_estimators': hp.quniform('n_estimators', 25, 1000, 1),
     'criterion': hp.choice('criterion', ["gini", "entropy"]),
     'min_samples_leaf': hp.quniform('min_samples_split', 2, 20, 1),
-    # 'scale': hp.choice('scale', [0, 1]),
-    # 'normalize': hp.choice('normalize', [0, 1]),
     'n_jobs': -1
 }
 
 
 xgb_space = {
-    'learning_rate': 0.01,
+#     'learning_rate': 0.01,
     # 'n_estimators': hp.quniform('n_estimators', 25,500, 1),
-    'n_estimators': 5000,
     # 'early_stopping_rounds':50,
+
+#     'n_estimators': 5000,
     'max_depth':  hp.quniform('max_depth', 2, 5, 1),
     'min_child_weight': hp.quniform('min_child_weight', 1, 20, 2),
     'subsample': hp.quniform('subsample', 0.5, 1, .1),
     'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.1),
     'gamma': hp.quniform('gamma', 0, 1, 0.1),
-    'objective': 'binary:logistic',
+#     'objective': 'binary:logistic',
     # 'n_jobs': -1
 }
 
@@ -108,16 +107,18 @@ xgb_space = {
 lgbm_space = {
 #    'learning_rate': hp.quniform('learning_rate', 0.025, 0.1, 0.025),
     # 'n_estimators': hp.quniform('n_estimators', 25, 500, 1),
-    'n_estimators': 5000,
     # 'early_stopping_rounds': 50,
+  
+#     'n_estimators': 5000,
     'num_leaves':  hp.quniform('num_leaves', 16, 96, 16),
     'min_child_weight': hp.quniform('min_child_weight', 1, 20, 2),
     'subsample': hp.quniform('subsample', 0.5, 1, 0.1),
     'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.1),
     'subsample_freq': 5,
-    'objective': 'binary',
-    'boosting_type': 'gbdt',
-    'learning_rate': 0.01,
+    
+#     'objective': 'binary',
+#     'boosting_type': 'gbdt',
+#     'learning_rate': 0.01,
     'n_jobs': -1
 }
 
@@ -150,7 +151,12 @@ class HyperOptModelSelection(object):
         log_file_path: file path for dumping logs
         params_mapping: dict of params_key and a callable function which to map the value of the key
         '''
-        self.space = space
+        if isinstance(space, dict):
+            self.space = space            
+        elif isinstance(space, str):
+            self.space = eval(space)
+        else:
+            raise ValueError("space not defined!")
         self.max_evals = max_evals
         self.trials_file_path = trials_file_path
         self.trials = self.load_trails()
@@ -177,10 +183,9 @@ class HyperOptModelSelection(object):
         params = self._params_mapping(params)
         self.iteration+=1
         logger.debug("\nIteration: {}, Training with params: {}".format(self.iteration, params))
-
         model_estimator_params = self.model_estimator.get_params()
-        model_params = model_estimator_params['model']
-        model_estimator_params['model'] = (model_params[0], params)
+        # updating model params
+        model_estimator_params['model'][1].update(params)
         model_estimator = Estimator(**model_estimator_params)
         score = evaluate(self.x, self.y, model_estimator, num_repeats=self.num_repeats, fs_individual=self.columns)
         

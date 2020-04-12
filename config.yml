@@ -1,0 +1,14 @@
+
+regressors:
+    - name: XGBRegressor 
+        - default_params: 
+            name: value
+        - hpt: True
+            - num_evals = 10
+    - name: LGBMClassifeir
+        - defaut_params: 
+            name: value
+        - hpt: True
+            - num_evals = 10
+        
+    
