@@ -16,7 +16,7 @@ Pipelines:
                     'subsample': 0.50, 
                     'subsample_freq': 5,
                     'metric': 'custom'
-            } # default params
+            } # default params, will be overwritten if hpt is used
             params: 
                 early_stopping_rounds: 50
                 random_state: 100 
@@ -26,16 +26,16 @@ Pipelines:
             hpt: 
                 name: HyperOptModelSelection
                 params:    
-                    max_evals: 20
+                    max_evals: 20 # number of hyperopt iterations to run
                     space: lgbm_space
-                    is_maximize: False
+                    is_maximize: False # optimization flag, True -> Maximize, False -> Minimize
                         
         - # XGBOOST Regresssor Model
             name: xgboost
             source: Estimator
             model: 
                 class: XGBRegressor
-                params: {'learning_rate':0.01, 'n_estimators':20000} # default params
+                params: {'learning_rate':0.01, 'n_estimators':20000} # default params, will be overwritten if hpt is used
             params: 
                 early_stopping_rounds: 100
                 random_state: 100 
@@ -47,7 +47,7 @@ Pipelines:
                 params:    
                     max_evals: 20 # number of hyperopt iterations to run
                     space: xgb_space
-                    is_maximize: False
+                    is_maximize: False # optimization flag, True -> Maximize, False -> Minimize
                         
                         
             
