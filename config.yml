@@ -1,14 +1,53 @@
-
-regressors:
-    - name: XGBRegressor 
-        - default_params: 
-            name: value
-        - hpt: True
-            - num_evals = 10
-    - name: LGBMClassifeir
-        - defaut_params: 
-            name: value
-        - hpt: True
-            - num_evals = 10
-        
-    
+Pipelines: 
+    Models:
+        - # LIGHTGBM REGRESSOR MODEL
+            name: lightgbm
+            source: Estimator
+            model: 
+                class: LGBMRegressor
+                params: {
+                    'n_estimators': 20000, 
+                    'learning_rate': 0.01,
+                    'boosting_type': 'gbdt', 
+                    'colsample_bytree': 0.80,        
+                    'min_child_weight': 40.0,
+                    'num_leaves': 16, 
+                    'objective': 'regression', 
+                    'subsample': 0.50, 
+                    'subsample_freq': 5,
+                    'metric': 'custom'
+            } # default params
+            params: 
+                early_stopping_rounds: 50
+                random_state: 100 
+                variance_penalty: 1
+                verbose: 500
+                eval_metric: 'mae'
+            hpt: 
+                name: HyperOptModelSelection
+                params:    
+                    max_evals: 20
+                    space: lgbm_space
+                    is_maximize: False
+                        
+        - # XGBOOST Regresssor Model
+            name: xgboost
+            source: Estimator
+            model: 
+                class: XGBRegressor
+                params: {'learning_rate':0.01, 'n_estimators':20000} # default params
+            params: 
+                early_stopping_rounds: 100
+                random_state: 100 
+                variance_penalty: 1
+                verbose: 500
+                eval_metric: 'mae'
+            hpt: 
+                name: HyperOptModelSelection
+                params:    
+                    max_evals: 20 # number of hyperopt iterations to run
+                    space: xgb_space
+                    is_maximize: False
+                        
+                        
+            
