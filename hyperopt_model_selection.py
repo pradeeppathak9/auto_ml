@@ -214,8 +214,7 @@ class HyperOptModelSelection(object):
         logger.info("Best Score- {}, Best Params- {}".format(self.best_score, self.best_params))
 
         model_estimator_params = self.model_estimator.get_params()
-        model_params = model_estimator_params['model']
-        model_estimator_params['model'] = (model_params[0], self.best_params)
+        model_estimator_params['model'][1].update(self.best_params)
         self.best_estimator = Estimator(**model_estimator_params)
         self.best_model = self.best_estimator.model
         del self.x, self.y
