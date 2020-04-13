@@ -26,7 +26,7 @@ Pipelines:
                 eval_metric: 'mae'
                 # validation_scheme: "train_test_split"
                 # n_splits: 3
-            hpt: 
+            hpt: # hyperparameter tuning
                 name: HyperOptModelSelection
                 params:    
                     max_evals: 5 # number of hyperopt iterations to run
@@ -52,7 +52,7 @@ Pipelines:
                 eval_metric: 'mae'
                 # validation_scheme: "TimeSeriesSplit"
                 # n_splits: 3
-            hpt: 
+            hpt: # hyperparameter tuning
                 name: HyperOptModelSelection
                 params:    
                     max_evals: 5 # number of hyperopt iterations to run
