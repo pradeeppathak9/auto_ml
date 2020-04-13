@@ -28,10 +28,9 @@ def get_scoring_metric(scoring_metric, eval_metric):
 
 class Estimator(object):
 
-    def __init__(self, model, n_splits=5, random_state=100, shuffle=True, early_stopping_rounds=None, 
-             validation_scheme=None, cv_group_col=None, 
-             categorical_features_indices=None, variance_penalty=0, over_sampling=None,
-             eval_metric=None, scoring_metric=None, verbose=100, n_jobs=-1, **kwargs
+    def __init__(self, model, validation_scheme=None, cv_group_col=None, n_splits=5, random_state=100, shuffle=True, 
+                 categorical_features_indices=None, early_stopping_rounds=None, eval_metric=None, scoring_metric=None, 
+                 variance_penalty=0, over_sampling=None, verbose=100, n_jobs=-1, **kwargs
         ):
         
         if isinstance(model, dict):
