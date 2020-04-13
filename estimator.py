@@ -33,11 +33,12 @@ class Estimator(object):
              categorical_features_indices=None, variance_penalty=0, over_sampling=None,
              eval_metric=None, scoring_metric=None, verbose=100, n_jobs=-1, **kwargs
         ):
-        try:
-            # build model instance from tuple/list of ModelName and params
+        
+        if isinstance(model, dict):
+            # build model instance from dict of Model Class Name and Model params
             # model should be imported before creating the instance
-            self.model = class_instance(model[0], model[1])
-        except Exception as e:
+            self.model = class_instance(model['class'], model['params'])
+        else:
             # model instance is already passed
             self.model = clone(model)
 
@@ -63,7 +64,10 @@ class Estimator(object):
 
     def get_params(self):
         return {
-            'model': (self.model.__class__.__name__, self.model.get_params()),
+            'model': {
+                "class": self.model.__class__.__name__, 
+                "params": self.model.get_params()
+            },
             'n_splits': self.n_splits,
             'random_state': self.random_state,
             'shuffle': self.shuffle,
@@ -193,16 +197,30 @@ class Estimator(object):
         with open(file_name, "wb") as out_file:
             pickle.dump({"fitted_models": self.fitted_models, "params": self.get_params()}, out_file)
             return file_name
-
+        
     @staticmethod
-    def load_model(file_name=None):
+    def load_model(file_name):
         """ Loads a model from saved picke of fitted models and Estimator params. returns an Estimator!"""
-        assert file_name, "file_name cannot be None"
+        assert file_name is not None, "file_name cannot be None"
         _dict = pickle.load(open(file_name, "rb"))
         est_ = Estimator(**_dict['params'])
         est_.fitted_models = _dict['fitted_models']
         return est_
-
+    
+    def to_serialized_object(self):
+        """ Saving fitted model and Estimator params for reuse!"""
+        assert self.fitted_models and len(self.fitted_models) > 0, "Cannot serialize model that is not fitted"
+        return pickle.dumps({"fitted_models": self.fitted_models, "params": self.get_params()})
+    
+    @staticmethod
+    def from_serialized_object(serialized_object=None):
+        """ Loads a model from serialized object containing fitted models and Estimator params. returns an Estimator object!"""
+        assert serialized_object, "file_name cannot be None"
+        _dict = pickle.loads(serialized_object)
+        est_ = Estimator(**_dict['params'])
+        est_.fitted_models = _dict['fitted_models']
+        return est_
+    
     def predict_proba(self, x):
         return self.transform(x)
 

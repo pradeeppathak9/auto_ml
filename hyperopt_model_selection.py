@@ -106,10 +106,10 @@ xgb_space = {
 
 lgbm_space = {
 #    'learning_rate': hp.quniform('learning_rate', 0.025, 0.1, 0.025),
-    # 'n_estimators': hp.quniform('n_estimators', 25, 500, 1),
-    # 'early_stopping_rounds': 50,
-  
+#     'n_estimators': hp.quniform('n_estimators', 25, 500, 1),
+#     'early_stopping_rounds': 50,
 #     'n_estimators': 5000,
+    
     'num_leaves':  hp.quniform('num_leaves', 16, 96, 16),
     'min_child_weight': hp.quniform('min_child_weight', 1, 20, 2),
     'subsample': hp.quniform('subsample', 0.5, 1, 0.1),
@@ -185,7 +185,7 @@ class HyperOptModelSelection(object):
         logger.debug("\nIteration: {}, Training with params: {}".format(self.iteration, params))
         model_estimator_params = self.model_estimator.get_params()
         # updating model params
-        model_estimator_params['model'][1].update(params)
+        model_estimator_params['model']['params'].update(params)
         model_estimator = Estimator(**model_estimator_params)
         score = evaluate(self.x, self.y, model_estimator, num_repeats=self.num_repeats, fs_individual=self.columns)
         
@@ -214,7 +214,7 @@ class HyperOptModelSelection(object):
         logger.info("Best Score- {}, Best Params- {}".format(self.best_score, self.best_params))
 
         model_estimator_params = self.model_estimator.get_params()
-        model_estimator_params['model'][1].update(self.best_params)
+        model_estimator_params['model']['params'].update(self.best_params)
         self.best_estimator = Estimator(**model_estimator_params)
         self.best_model = self.best_estimator.model
         del self.x, self.y
