@@ -22,7 +22,7 @@ print(est.avg_cv_score)
 ```
 
 
-##### Hyperparameter (HyperOpt)
+##### Hyperparameter Tuning (HyperOpt)
 ```python
 est = Estimator(
     LGBMClassifier(), early_stopping_rounds=100, random_state=100, 
