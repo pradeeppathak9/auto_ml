@@ -253,7 +253,7 @@ class Estimator(object):
     def from_serialized_object(serialized_object):
         """ Loads a model from serialized object containing fitted models and Estimator params. returns an Estimator object!"""
         
-        assert serialized_object, "serialized_object cannot be None"
+        assert serialized_object is not None, "serialized_object cannot be None"
         _dict = pickle.loads(serialized_object)
         est_ = Estimator(**_dict['params'])
         est_.fitted_models = _dict['fitted_models']
