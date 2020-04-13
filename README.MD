@@ -39,7 +39,7 @@ est = hpt.best_estimator
 
 ##### AutoML
 ```python
-aml = AutoML(config_file_path = "config.yml", validation_scheme=FoldScheme.StratifiedKFold, n_splits=5)
+aml = AutoML(config_file_path="config.yml", validation_scheme=FoldScheme.StratifiedKFold, n_splits=5)
 aml.fit(X_train, y_train)
 # predictions on Test Data
 aml.predict(X_test)
