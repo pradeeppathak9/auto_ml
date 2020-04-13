@@ -224,7 +224,7 @@ class Estimator(object):
     def save_model(self, file_name=None):
         """ Saving fitted model and Estimator params for reuse!"""
         
-        assert self.fitted_models and len(self.fitted_models) > 0, "Cannot save a model that is not fitted"
+        assert hasattr(self, "fitted_models") and len(self.fitted_models) > 0, "Cannot save a model that is not fitted"
         assert file_name, "file_name cannot be None"
         with open(file_name, "wb") as out_file:
             pickle.dump({"fitted_models": self.fitted_models, "params": self.get_params()}, out_file)
@@ -245,7 +245,7 @@ class Estimator(object):
     def to_serialized_object(self):
         """ Saving fitted model and Estimator params for reuse!"""
         
-        assert self.fitted_models and len(self.fitted_models) > 0, "Cannot serialize model that is not fitted"
+        assert hasattr(self, "fitted_models") and len(self.fitted_models) > 0, "Cannot serialize model that is not fitted"
         return pickle.dumps({"fitted_models": self.fitted_models, "params": self.get_params()})
     
     
