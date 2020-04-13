@@ -1,4 +1,7 @@
 import yaml 
+import pandas as pd
+from estimator import Estimator
+from hyperopt_model_selection import HyperOptModelSelection, hp
 
 class AutoML: 
     
@@ -6,6 +9,7 @@ class AutoML:
         if kwargs.get('config'):
             self.config = kwargs.get('config')
         elif kwargs.get('config_file_path'):
+            # reading model configurations from file
             self.config = yaml.load(open(kwargs.get('config_file_path')))
         else:
             raise ValueError("Requires config or config_file_path")
@@ -24,7 +28,7 @@ class AutoML:
                 est = Estimator(model["model"], **model["params"], 
                                 validation_scheme=self.validation_scheme, n_splits=self.n_splits)
 
-                # runnnig Hyperparameter tuning if present
+                # performing Hyperparameter tuning if present
                 if model.get('hpt'):
                     hpt = HyperOptModelSelection(model=est, **model['hpt']['params'])
                     hpt.fit(X_train, y_train)
