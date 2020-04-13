@@ -1,8 +1,9 @@
 Pipelines: 
-    Models:
+    Model Layer:
         - # LIGHTGBM REGRESSOR MODEL
             name: lightgbm
             source: Estimator
+            pickle_path: lgbm.pkl
             model: 
                 class: LGBMRegressor
                 params: {
@@ -16,38 +17,44 @@ Pipelines:
                     'subsample': 0.50, 
                     'subsample_freq': 5,
                     'metric': 'custom'
-            } # default params, will be overwritten if hpt is used
-            params: 
+                } # default params, will be overwritten if hpt is used
+            params: # Estimator params, excluding model
                 early_stopping_rounds: 50
                 random_state: 100 
                 variance_penalty: 1
                 verbose: 500
                 eval_metric: 'mae'
+                validation_scheme: "train_test_split"
+                n_splits: 3
             hpt: 
                 name: HyperOptModelSelection
                 params:    
-                    max_evals: 20 # number of hyperopt iterations to run
+                    max_evals: 5 # number of hyperopt iterations to run
                     space: lgbm_space
                     is_maximize: False # optimization flag, True -> Maximize, False -> Minimize
                         
         - # XGBOOST Regresssor Model
             name: xgboost
             source: Estimator
+            pickle_path: xgb.pkl # path to save fitted model
             model: 
                 class: XGBRegressor
-                params: {'learning_rate':0.01, 'n_estimators':20000} # default params, will be overwritten if hpt is used
-            params: 
+                params: {
+                    'learning_rate':0.01, 
+                    'n_estimators':20000,
+                    'metric': 'custom'
+                } # default params, will be overwritten if hpt is used
+            params: # Estimator params, excluding model 
                 early_stopping_rounds: 100
                 random_state: 100 
                 variance_penalty: 1
                 verbose: 500
                 eval_metric: 'mae'
+                validation_scheme: "TimeSeriesSplit"
+                n_splits: 3
             hpt: 
                 name: HyperOptModelSelection
                 params:    
-                    max_evals: 20 # number of hyperopt iterations to run
+                    max_evals: 5 # number of hyperopt iterations to run
                     space: xgb_space
                     is_maximize: False # optimization flag, True -> Maximize, False -> Minimize
-                        
-                        
-            
