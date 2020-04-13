@@ -3,7 +3,7 @@ Pipelines:
         - # LIGHTGBM REGRESSOR MODEL
             name: lightgbm
             source: Estimator
-            pickle_path: lgbm.pkl
+            pickle_path: lgb.pkl # path to save fitted model
             model: 
                 class: LGBMRegressor
                 params: {
