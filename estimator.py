@@ -160,16 +160,12 @@ class Estimator(object):
     
     def fit_transform(self, x, y, groups=None):
         self.fit(x, y, use_oof=True)
+        self.cv_scores, scoring_metric = [], get_scoring_metric(self.scoring_metric, self.eval_metric)
         predictions = np.zeros((x.shape[0],))
         for i, (train_index, test_index) in enumerate(self.indices):
-            if hasattr(self.fitted_models[i], "predict_proba"):
-                predictions[test_index] = self.fitted_models[i].predict_proba(x[test_index])[:,1]
-            else:
-                predictions[test_index] = self.fitted_models[i].predict(x[test_index])
-        self.cv_scores = []
-        scoring_metric = get_scoring_metric(self.scoring_metric, self.eval_metric)
-        if scoring_metric is not None:
-            self.cv_scores = [scoring_metric(y[test_index], predictions[test_index]) for i, (train_index, test_index) in enumerate(self.indices)]
+            predictions[test_index] = self.fitted_models[i].predict_proba(x[test_index])[:,1] \
+                if hasattr(self.fitted_models[i], "predict_proba") else self.fitted_models[i].predict(x[test_index])
+            if scoring_metric is not None: self.cv_scores.append(scoring_metric(y[test_index], predictions[test_index]))
         self.avg_cv_score = np.mean(self.cv_scores)
         return predictions
     
@@ -198,6 +194,8 @@ class Estimator(object):
     
     
     def feature_importances(self):
+        """ function to return aggregated feature importances from the fitted models"""
+        
         assert hasattr(self, 'fitted_models'), "Model/algorithm needs to implement fit()"
         if self.model.__class__.__name__ == "LogisticRegression":
             feature_importances = np.column_stack(m.coef_[0] for m in self.fitted_models)
@@ -210,6 +208,8 @@ class Estimator(object):
     
     
     def feature_importance_df(self, columns=None):
+        """ function to return aggregated feature importances dataframe sorted by importance from the fitted models"""
+        
         importances = self.feature_importances()
         if columns is not None:
             assert len(columns) != len(importances), "Columns length Mismatch!"
@@ -223,6 +223,7 @@ class Estimator(object):
     
     def save_model(self, file_name=None):
         """ Saving fitted model and Estimator params for reuse!"""
+        
         assert self.fitted_models and len(self.fitted_models) > 0, "Cannot save a model that is not fitted"
         assert file_name, "file_name cannot be None"
         with open(file_name, "wb") as out_file:
@@ -233,6 +234,7 @@ class Estimator(object):
     @staticmethod
     def load_model(file_name):
         """ Loads a model from saved picke of fitted models and Estimator params. returns an Estimator!"""
+        
         assert file_name is not None, "file_name cannot be None"
         _dict = pickle.load(open(file_name, "rb"))
         est_ = Estimator(**_dict['params'])
@@ -242,6 +244,7 @@ class Estimator(object):
     
     def to_serialized_object(self):
         """ Saving fitted model and Estimator params for reuse!"""
+        
         assert self.fitted_models and len(self.fitted_models) > 0, "Cannot serialize model that is not fitted"
         return pickle.dumps({"fitted_models": self.fitted_models, "params": self.get_params()})
     
@@ -249,6 +252,7 @@ class Estimator(object):
     @staticmethod
     def from_serialized_object(serialized_object=None):
         """ Loads a model from serialized object containing fitted models and Estimator params. returns an Estimator object!"""
+        
         assert serialized_object, "file_name cannot be None"
         _dict = pickle.loads(serialized_object)
         est_ = Estimator(**_dict['params'])
