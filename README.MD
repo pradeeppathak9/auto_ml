@@ -7,6 +7,7 @@ from folds import CustomFolds, FoldScheme
 from hyperopt_model_selection import HyperOptModelSelection, hp, lgbm_space
 from lightgbm import LGBMRegressor, LGBMClassifier
 from xgboost import XGBRegressor, XGBClassifier
+from auto_ml import AutoML
 ```
 
 ##### Estimator Object
@@ -34,7 +35,7 @@ print(est.avg_cv_score)
 ```
 
 
-### Hyperparameter (HyperOpt)
+##### Hyperparameter (HyperOpt)
 ```python
 est = Estimator(
     LGBMClassifier(), early_stopping_rounds=100, random_state=100, 
@@ -49,7 +50,7 @@ est = hpt.best_estimator
 ```
 
 
-### AutoML
+##### AutoML
 ```python
 aml = AutoML(config_file_path = "config.yml", validation_scheme=FoldScheme.StratifiedKFold, n_splits=5)
 aml.fit(X_train, y_train)
