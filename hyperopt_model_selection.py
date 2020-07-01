@@ -18,7 +18,7 @@ def evaluate(X, y, model_estimator, num_repeats=1, fs_individual=None):
     model_estimator = instance of Estimator class
     num_repeats = num_repeats params for get_repeated_out_of_folds method
     fs_individual = feature selection individual, list of column indicies
-    ''' 
+    '''
     # handle feature selection individual here....
     if fs_individual is not None:
         # individual is list of columns to subset
@@ -78,11 +78,14 @@ lr_space={
 }
 
 rf_space = {
+    'n_estimators': hp.quniform('n_estimators', 25, 1000, 1),
     'max_depth':  hp.quniform('max_depth', 2, 10, 1),
     'max_features': hp.quniform('max_features',.2, .8, .1),
-    'n_estimators': hp.quniform('n_estimators', 25, 1000, 1),
-    'criterion': hp.choice('criterion', ["gini", "entropy"]),
     'min_samples_leaf': hp.quniform('min_samples_split', 2, 20, 1),
+
+    # 'criterion': hp.choice('criterion', ["gini", "entropy"]), # for classification
+    'criterion': hp.choice('criterion', ["mse"]), # for regression
+    'random_state': 100,
     'n_jobs': -1
 }
 
@@ -109,13 +112,13 @@ lgbm_space = {
 #     'n_estimators': hp.quniform('n_estimators', 25, 500, 1),
 #     'early_stopping_rounds': 50,
 #     'n_estimators': 5000,
-    
+
     'num_leaves':  hp.quniform('num_leaves', 16, 96, 16),
     'min_child_weight': hp.quniform('min_child_weight', 1, 20, 2),
     'subsample': hp.quniform('subsample', 0.5, 1, 0.1),
     'colsample_bytree': hp.quniform('colsample_bytree', 0.5, 1, 0.1),
     'subsample_freq': 5,
-    
+
 #     'objective': 'binary',
 #     'boosting_type': 'gbdt',
 #     'learning_rate': 0.01,
@@ -152,7 +155,7 @@ class HyperOptModelSelection(object):
         params_mapping: dict of params_key and a callable function which to map the value of the key
         '''
         if isinstance(space, dict):
-            self.space = space            
+            self.space = space
         elif isinstance(space, str):
             self.space = eval(space)
         else:
@@ -188,7 +191,7 @@ class HyperOptModelSelection(object):
         model_estimator_params['model']['params'].update(params)
         model_estimator = Estimator(**model_estimator_params)
         score = evaluate(self.x, self.y, model_estimator, num_repeats=self.num_repeats, fs_individual=self.columns)
-        
+
         loss = -1*score['eval_score'] if self.is_maximize else score['eval_score']
 
         logger.debug("Score - {}, Std - {}, Eval Score - {}".format(score["avg_cv_score"], np.std(score['cv_scores']), score["eval_score"]))
