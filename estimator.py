@@ -4,7 +4,10 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.base import clone
 from sklearn.preprocessing import RobustScaler
 from sklearn.model_selection import StratifiedKFold, KFold, GroupKFold, TimeSeriesSplit, train_test_split
-from sklearn.metrics import accuracy_score, mean_absolute_error, mean_squared_error
+from sklearn.metrics import (
+    accuracy_score, roc_auc_score,
+    mean_absolute_error, mean_squared_error
+)
 import random
 import io, pickle
 from folds import CustomFolds, FoldScheme
@@ -20,13 +23,20 @@ metric_mapping = {
     "mae": mean_absolute_error,
     "mse": mean_squared_error,
     'rmse': mean_squared_error,
+    
+    'roc': roc_auc_score,
+    'auc': roc_auc_score,
+    'acc': accuracy_score,
+
 }
 
 def get_scoring_metric(scoring_metric, eval_metric):
-    if callable(scoring_metric): return scoring_metric
-    if isinstance(scoring_metric, str):
-        return metric_mapping.get(scoring_metric)
-    return metric_mapping.get(eval_metric)
+    if scoring_metric is None: 
+        scoring_metric = eval_metric
+    metric = metric_mapping.get(scoring_metric) if isinstance(scoring_metric, str) else scoring_metric
+    assert callable(metric), "Scoring metric should be callable function - {}".format(scoring_metric)
+    return metric
+
 
 class Estimator(object):
 
@@ -165,7 +175,6 @@ class Estimator(object):
     def fit_transform(self, x, y, groups=None):
         self.fit(x, y, use_oof=True)
         self.cv_scores, scoring_metric = [], get_scoring_metric(self.scoring_metric, self.eval_metric)
-        assert scoring_metric is not None, "scoring metric cannot be None"
         predictions = np.zeros((x.shape[0],))
         # predictions = np.nan
         for i, (train_index, test_index) in enumerate(self.indices):
