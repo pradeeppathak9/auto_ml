@@ -228,10 +228,9 @@ class Estimator(object):
 
     def feature_importance_df(self, columns=None):
         """ function to return aggregated feature importances dataframe sorted by importance from the fitted models"""
-
         importances = self.feature_importances()
         if columns is not None:
-            assert len(columns) != len(importances), "Columns length Mismatch!"
+            assert len(columns) == len(importances), "Columns length Mismatch! {}, {}".format(len(columns), len(importances))
             df = pd.DataFrame(list(zip(columns, importances)), columns=['column', 'feature_importance'])
         else:
             df = pd.DataFrame(list(zip(list(range(len(importances))), importances)), columns=['column_index', 'feature_importance'])
